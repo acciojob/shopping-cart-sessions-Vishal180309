@@ -1,38 +1,69 @@
-// This is the boilerplate code given for you
-// You can modify this code
-// Product data
+// Define products
 const products = [
-  { id: 1, name: "Product 1", price: 10 },
-  { id: 2, name: "Product 2", price: 20 },
-  { id: 3, name: "Product 3", price: 30 },
-  { id: 4, name: "Product 4", price: 40 },
-  { id: 5, name: "Product 5", price: 50 },
+    { id: 1, name: "Product 1", price: 10.99 },
+    { id: 2, name: "Product 2", price: 9.99 },
+    { id: 3, name: "Product 3", price: 12.99 },
+    { id: 4, name: "Product 4", price: 8.99 },
+    { id: 5, name: "Product 5", price: 15.99 }
 ];
 
-// DOM elements
-const productList = document.getElementById("product-list");
+// Function to add product to cart
+function addProductToCart(productId) {
+    const product = products.find((product) => product.id === productId);
+    const cart = getCart();
+    const existingProductIndex = cart.findIndex((cartProduct) => cartProduct.id === productId);
 
-// Render product list
-function renderProducts() {
-  products.forEach((product) => {
-    const li = document.createElement("li");
-    li.innerHTML = `${product.name} - $${product.price} <button class="add-to-cart-btn" data-id="${product.id}">Add to Cart</button>`;
-    productList.appendChild(li);
-  });
+    if (existingProductIndex !== -1) {
+        cart[existingProductIndex].quantity++;
+    } else {
+        cart.push({ id: productId, name: product.name, price: product.price, quantity: 1 });
+    }
+
+    saveCart(cart);
+    updateCartList();
 }
 
-// Render cart list
-function renderCart() {}
+// Function to get cart from session storage
+function getCart() {
+    const cart = window.sessionStorage.getItem("cart");
+    return cart ? JSON.parse(cart) : [];
+}
 
-// Add item to cart
-function addToCart(productId) {}
+// Function to save cart to session storage
+function saveCart(cart) {
+    window.sessionStorage.setItem("cart", JSON.stringify(cart));
+}
 
-// Remove item from cart
-function removeFromCart(productId) {}
+// Function to update cart list
+function updateCartList() {
+    const cartList = document.getElementById("cart-list");
+    const cart = getCart();
 
-// Clear cart
-function clearCart() {}
+    cartList.innerHTML = "";
+    cart.forEach((cartProduct) => {
+        const cartProductListItem = document.createElement("li");
+        cartProductListItem.innerHTML = `${cartProduct.name} x ${cartProduct.quantity} = $${cartProduct.price * cartProduct.quantity}`;
+        cartList.appendChild(cartProductListItem);
+    });
+}
 
-// Initial render
-renderProducts();
-renderCart();
+// Function to clear cart
+function clearCart() {
+    saveCart([]);
+    updateCartList();
+}
+
+// Add event listeners
+document.addEventListener("DOMContentLoaded", () => {
+    const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
+    addToCartButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            const productId = parseInt(button.getAttribute("data-product-id"));
+            addProductToCart(productId);
+        });
+    });
+
+    const clearCartButton = document.getElementById("clear-cart-btn");
+    clearCartButton.addEventListener("click", clearCart);
+
+    updateCartList();
