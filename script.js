@@ -1,61 +1,58 @@
-// Function to add product to cart
-function addProductToCart(productName, productPrice) {
-    const cart = getCart();
-    const existingProductIndex = cart.findIndex((cartProduct) => cartProduct.name === productName);
+document.addEventListener("DOMContentLoaded", function () {
+    const productsData = [
+        { name: "Laptop", price: 1000 },
+        { name: "Smartphone", price: 500 },
+        { name: "Headphones", price: 100 },
+        { name: "Smartwatch", price: 200 },
+        { name: "Tablet", price: 300 }
+    ];
 
-    if (existingProductIndex !== -1) {
-        cart[existingProductIndex].quantity++;
-    } else {
-        cart.push({ name: productName, price: productPrice, quantity: 1 });
+    const productsContainer = document.getElementById("products");
+    const cartContainer = document.getElementById("cart");
+    const clearCartButton = document.getElementById("clearCart");
+
+    // Load cart from sessionStorage
+    let cart = JSON.parse(sessionStorage.getItem("cart")) || [];
+
+    // Display products
+    function renderProducts() {
+        productsContainer.innerHTML = "";
+        productsData.forEach((product, index) => {
+            const productDiv = document.createElement("div");
+            productDiv.innerHTML = `
+                <p>${product.name} - $${product.price}</p>
+                <button onclick="addToCart(${index})">Add to Cart</button>
+            `;
+            productsContainer.appendChild(productDiv);
+        });
     }
 
-    saveCart(cart);
-    updateCartList();
-}
+    // Add to cart function
+    window.addToCart = function (index) {
+        const product = productsData[index];
+        cart.push(product);
+        sessionStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+    };
 
-// Function to get cart from session storage
-function getCart() {
-    const cart = window.sessionStorage.getItem("cart");
-    return cart ? JSON.parse(cart) : [];
-}
-
-// Function to save cart to session storage
-function saveCart(cart) {
-    window.sessionStorage.setItem("cart", JSON.stringify(cart));
-}
-
-// Function to update cart list
-function updateCartList() {
-    const cartList = document.getElementById("cart-list");
-    const cart = getCart();
-
-    cartList.innerHTML = "";
-    cart.forEach((cartProduct) => {
-        const cartProductListItem = document.createElement("li");
-        cartProductListItem.innerHTML = `${cartProduct.name} x ${cartProduct.quantity} = $${cartProduct.price * cartProduct.quantity}`;
-        cartList.appendChild(cartProductListItem);
-    });
-}
-
-// Function to clear cart
-function clearCart() {
-    saveCart([]);
-    updateCartList();
-}
-
-// Add event listeners
-document.addEventListener("DOMContentLoaded", () => {
-    const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
-    addToCartButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-            const productName = button.getAttribute("data-product-name");
-            const productPrice = parseFloat(button.getAttribute("data-product-price"));
-            addProductToCart(productName, productPrice);
+    // Render cart
+    function renderCart() {
+        cartContainer.innerHTML = "";
+        cart.forEach((product, index) => {
+            const li = document.createElement("li");
+            li.textContent = `${product.name} - $${product.price}`;
+            cartContainer.appendChild(li);
         });
+    }
+
+    // Clear cart function
+    clearCartButton.addEventListener("click", function () {
+        cart = [];
+        sessionStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
     });
 
-    const clearCartButton = document.getElementById("clear-cart-btn");
-    clearCartButton.addEventListener("click", clearCart);
-
-    updateCartList();
+    // Initial rendering
+    renderProducts();
+    renderCart();
 });
