@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Add to cart function
+    // Add to cart
     window.addToCart = function (index) {
         const product = productsData[index];
         cart.push(product);
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Clear cart function
+    // Clear cart
     clearCartButton.addEventListener("click", function () {
         cart = [];
         sessionStorage.setItem("cart", JSON.stringify(cart));
